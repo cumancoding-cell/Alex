@@ -3,30 +3,387 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Contoh Notifikasi</title>
-    <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <title>Waktu · jam analog & digital</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Roboto, system-ui, sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            background: linear-gradient(145deg, #0b1a2e 0%, #1a2f3f 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1.5rem;
+        }
+
+        .clock-card {
+            max-width: 750px;
+            width: 100%;
+            background: rgba(18, 30, 41, 0.65);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            border: 1px solid rgba(90, 150, 180, 0.25);
+            border-radius: 3.5rem;
+            padding: 2.5rem 2rem 2.8rem 2rem;
+            box-shadow: 0 40px 70px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(160, 210, 240, 0.1) inset;
+        }
+
+        /* header / tanggal */
+        .date-greeting {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            color: #c1ddee;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            gap: 0.7rem 1.5rem;
+        }
+
+        .indonesia-date {
+            font-size: 1.3rem;
+            font-weight: 400;
+            letter-spacing: 0.5px;
+            background: rgba(255, 255, 255, 0.04);
+            padding: 0.4rem 1.4rem;
+            border-radius: 60px;
+            border: 1px solid rgba(150, 200, 230, 0.2);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .lunar-place {
+            display: flex;
+            gap: 10px;
+            color: #7fa9c2;
+            font-size: 1rem;
+            font-weight: 300;
+        }
+
+        .lunar-place span {
+            background: rgba(45, 80, 100, 0.5);
+            padding: 0.3rem 1rem;
+            border-radius: 30px;
+        }
+
+        /* area jam utama */
+        .clock-main {
+            display: flex;
+            flex-direction column;
+            align-items: center;
+            gap: 2.8rem;
+        }
+
+        /* jam analog */
+        .analog-section {
+            display: flex;
+            justify-content: center;
+        }
+
+        .analog-clock {
+            width: 260px;
+            height: 260px;
+            border-radius: 50%;
+            background: #13212e;
+            background: radial-gradient(circle at 30% 30%, #253b49, #0f1e2b);
+            box-shadow: 0 20px 35px rgba(0, 0, 0, 0.8), 0 0 0 6px #1d3342, 0 0 0 10px rgba(140, 190, 220, 0.15);
+            position: relative;
+            border: 2px solid #386277;
+        }
+
+        /* titik tengah */
+        .center-dot {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background: #eef7ff;
+            border-radius: 50%;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 20;
+            border: 3px solid #153947;
+            box-shadow: 0 0 15px #9fc8ff;
+        }
+
+        .hand {
+            position: absolute;
+            bottom: 50%;
+            left: 50%;
+            transform-origin: bottom center;
+            transform: translateX(-50%) rotate(0deg);
+            border-radius: 16px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.6);
+        }
+
+        .hour-hand {
+            width: 8px;
+            height: 65px;
+            background: linear-gradient(180deg, #f2d53c, #f0b30f);
+            border: 1px solid #b47d14;
+        }
+
+        .minute-hand {
+            width: 6px;
+            height: 90px;
+            background: linear-gradient(180deg, #b0e0ff, #5fa6c9);
+            border: 1px solid #2b6f90;
+        }
+
+        .second-hand {
+            width: 3px;
+            height: 105px;
+            background: #ff7b7b;
+            background: linear-gradient(180deg, #ffa0a0, #d84545);
+            border: 1px solid #a12222;
+            box-shadow: 0 0 10px #ff6161;
+        }
+
+        /* angka jam */
+        .number {
+            position: absolute;
+            color: #a5cddf;
+            font-weight: 600;
+            font-size: 1.3rem;
+            text-shadow: 0 2px 6px black;
+            transform: translate(-50%, -50%);
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .number1  { top: 20%; left: 73%; }
+        .number2  { top: 35%; left: 87%; }
+        .number3  { top: 50%; left: 93%; transform: translate(-50%, -50%); }
+        .number4  { top: 65%; left: 87%; }
+        .number5  { top: 80%; left: 73%; }
+        .number6  { top: 87%; left: 50%; }
+        .number7  { top: 80%; left: 27%; }
+        .number8  { top: 65%; left: 13%; }
+        .number9  { top: 50%; left: 7%; }
+        .number10 { top: 35%; left: 13%; }
+        .number11 { top: 20%; left: 27%; }
+        .number12 { top: 13%; left: 50%; }
+
+        /* jam digital */
+        .digital-panel {
+            background: rgba(8, 22, 33, 0.8);
+            border-radius: 100px;
+            padding: 1.3rem 2.5rem;
+            border: 1px solid #3082a8;
+            box-shadow: 0 15px 25px rgba(0, 0, 0, 0.7), inset 0 1px 2px rgba(255,255,240,0.1);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-width: 280px;
+        }
+
+        .digital-time {
+            font-size: 4rem;
+            font-weight: 600;
+            font-family: 'Courier New', monospace;
+            letter-spacing: 7px;
+            color: #d4f2ff;
+            text-shadow: 0 0 12px #00a6ff, 0 2px 0 #0a3340;
+            line-height: 1.2;
+        }
+
+        .digital-seconds {
+            font-size: 1.6rem;
+            color: #aad0e6;
+            margin-left: 10px;
+            font-weight: 300;
+        }
+
+        .ampm-indicator {
+            font-size: 1.4rem;
+            background: #143746;
+            padding: 0.2rem 1.2rem;
+            border-radius: 60px;
+            color: #b1dcf0;
+            margin-top: 6px;
+            border: 1px solid #386277;
+            font-weight: 400;
+        }
+
+        /* tambahan info zona */
+        .location-tag {
+            display: flex;
+            justify-content: center;
+            gap: 25px;
+            margin-top: 2rem;
+            color: #96b8cd;
+            font-size: 1rem;
+            font-weight: 300;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 0.8rem 1.5rem;
+            border-radius: 80px;
+            border: 1px solid #2c5063;
+        }
+
+        .location-tag i {
+            font-style: normal;
+            color: #ffda8b;
+        }
+
+        .footer-small {
+            text-align: center;
+            margin-top: 2.2rem;
+            color: #49778b;
+            font-size: 0.9rem;
+        }
+    </style>
 </head>
 <body>
-    <div class="container">
-        <h2><i class="fas fa-bell"></i> Belajar kondisi</h2>
-        
-        <div class="input-group">
-            <label for="masukkanText">Masukkan Angka:</label>
-            <input type="text" id="masukkanText" placeholder="Contoh: 1 Sampai 5">
+    <div class="clock-card">
+        <!-- bagian atas: tanggal & indonesia -->
+        <div class="date-greeting">
+            <div class="indonesia-date" id="dateDisplay">Senin, 1 Januari 2025</div>
+            <div class="lunar-place">
+                <span>🇮🇩 WIB</span>
+                <span>🌙 07 Rajab 1446</span>
+            </div>
         </div>
-        
-        <button id="kondisi" class="btn-cek">
-            <i class="fas fa-check-circle"></i> Priksa!
-        </button>
-        
-        <div class="info">
-            <p>Coba masukkan angka 1 sampai 5 untuk melihat notifikasi berbeda</p>
+
+        <!-- utama: jam analog & digital -->
+        <div class="clock-main">
+            <!-- analog clock -->
+            <div class="analog-section">
+                <div class="analog-clock" id="analogClock">
+                    <div class="hand hour-hand" id="hourHand"></div>
+                    <div class="hand minute-hand" id="minuteHand"></div>
+                    <div class="hand second-hand" id="secondHand"></div>
+                    <div class="center-dot"></div>
+
+                    <!-- angka jam 1 - 12 -->
+                    <div class="number number1">1</div>
+                    <div class="number number2">2</div>
+                    <div class="number number3">3</div>
+                    <div class="number number4">4</div>
+                    <div class="number number5">5</div>
+                    <div class="number number6">6</div>
+                    <div class="number number7">7</div>
+                    <div class="number number8">8</div>
+                    <div class="number number9">9</div>
+                    <div class="number number10">10</div>
+                    <div class="number number11">11</div>
+                    <div class="number number12">12</div>
+                </div>
+            </div>
+
+            <!-- digital clock + AM/PM -->
+            <div class="digital-panel">
+                <div style="display: flex; align-items: baseline; flex-wrap: wrap; justify-content: center;">
+                    <span class="digital-time" id="hourDigital">12</span>
+                    <span style="color:#aacadd; font-size:3rem;">:</span>
+                    <span class="digital-time" id="minuteDigital">00</span>
+                    <span class="digital-seconds" id="secondDigital">00</span>
+                </div>
+                <div class="ampm-indicator" id="ampmLabel">AM</div>
+            </div>
+        </div>
+
+        <!-- zona & tambahan -->
+        <div class="location-tag">
+            <span>🕒 <i id="timezoneOffset">UTC+7</i> (Jakarta)</span>
+            <span>⏳ <i id="sessionStatus">siang</i></span>
+        </div>
+
+        <div class="footer-small">
+            ⏰ jam realtime · javascript murni
         </div>
     </div>
 
-    <div id="notificationContainer" class="notification-container"></div>
+    <script>
+        (function() {
+            // Elemen DOM
+            const hourHand = document.getElementById('hourHand');
+            const minuteHand = document.getElementById('minuteHand');
+            const secondHand = document.getElementById('secondHand');
+            const hourDigital = document.getElementById('hourDigital');
+            const minuteDigital = document.getElementById('minuteDigital');
+            const secondDigital = document.getElementById('secondDigital');
+            const ampmLabel = document.getElementById('ampmLabel');
+            const dateDisplay = document.getElementById('dateDisplay');
+            const sessionStatus = document.getElementById('sessionStatus');
+            const timezoneOffset = document.getElementById('timezoneOffset');
 
-    <script src="script.js"></script>
+            // Nama hari & bulan Indonesia
+            const days = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+            const months = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+
+            // Update jam setiap detik
+            function updateClock() {
+                const now = new Date();
+
+                // 1. Ambil jam, menit, detik
+                let hours = now.getHours();
+                let minutes = now.getMinutes();
+                let seconds = now.getSeconds();
+
+                // --- Analog clock angles ---
+                // Jarum jam: 360° / 12 = 30° per jam, ditambah pergerakan menit (0.5° per menit)
+                const hourAngle = (hours % 12) * 30 + minutes * 0.5;
+                const minuteAngle = minutes * 6 + seconds * 0.1;   // 6° per menit + pergerakan halus per detik
+                const secondAngle = seconds * 6;                   // 6° per detik
+
+                // Terapkan rotasi
+                hourHand.style.transform = `translateX(-50%) rotate(${hourAngle}deg)`;
+                minuteHand.style.transform = `translateX(-50%) rotate(${minuteAngle}deg)`;
+                secondHand.style.transform = `translateX(-50%) rotate(${secondAngle}deg)`;
+
+                // --- Digital clock (format 2 digit) & AM/PM ---
+                const ampm = hours >= 12 ? 'PM' : 'AM';
+                // konversi ke format 12 jam
+                let displayHour12 = hours % 12;
+                if (displayHour12 === 0) displayHour12 = 12; // jam 12 untuk 0 (AM) dan 12 (PM)
+                
+                // padding 2 digit
+                const hourStr = displayHour12.toString().padStart(2, '0');
+                const minuteStr = minutes.toString().padStart(2, '0');
+                const secondStr = seconds.toString().padStart(2, '0');
+
+                hourDigital.textContent = hourStr;
+                minuteDigital.textContent = minuteStr;
+                secondDigital.textContent = secondStr;
+                ampmLabel.textContent = ampm;
+
+                // --- tanggal indonesia ---
+                const dayName = days[now.getDay()];
+                const date = now.getDate();
+                const monthName = months[now.getMonth()];
+                const year = now.getFullYear();
+                dateDisplay.textContent = `${dayName}, ${date} ${monthName} ${year}`;
+
+                // --- session (pagi/siang/sore/malam) ---
+                const hour24 = hours;
+                let session = '';
+                if (hour24 >= 4 && hour24 < 11) session = '🌄 pagi';
+                else if (hour24 >= 11 && hour24 < 15) session = '☀️ siang';
+                else if (hour24 >= 15 && hour24 < 18) session = '🌅 sore';
+                else if (hour24 >= 18 || hour24 < 4) session = '🌙 malam';
+                sessionStatus.textContent = session;
+
+                // --- timezone offset (WIB = +7) ---
+                const offset = now.getTimezoneOffset(); // dalam menit, negatif untuk +7: WIB = -420
+                const offsetHours = -offset / 60;  // misal -420 -> 7
+                const sign = offsetHours >= 0 ? '+' : '';
+                timezoneOffset.textContent = `UTC${sign}${offsetHours} (Jakarta)`;
+            }
+
+            // Update pertama & interval
+            updateClock();
+            setInterval(updateClock, 1000);
+
+            // === (opsional) untuk histeresis angle detik yang lebih mulus, namun sudah baik ===
+            // jika ingin sangat presisi, kita bisa gunakan requestAnimationFrame, tetapi setInterval 1 detik cukup.
+            // menambahkan penyesuaian jarum menit tiap 0.1° sudah dihitung.
+        })();
+    </script>
 </body>
 </html>
